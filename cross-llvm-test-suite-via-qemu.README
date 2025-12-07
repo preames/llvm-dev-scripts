@@ -1,0 +1,30 @@
+# STEP 1 - setup qemu and toolchain of choice
+# IF you want non-standard options, set them in CC/CXX.
+
+# DOUBLE CHECK THAT YOU HAVE THE FOLLOWING DIFF
+diff --git a/lit.cfg b/lit.cfg
+index e72e9120..439a992e 100644
+--- a/lit.cfg
++++ b/lit.cfg
+@@ -32,6 +32,10 @@ config.remote_host = lit_config.params.get('remote_host', config.remote_host)
+ if config.remote_host:
+     config.test_modules.append('remote')
+ 
++config.environment['QEMU_LD_PREFIX'] = os.environ['QEMU_LD_PREFIX']
++config.environment['QEMU_CPU'] = os.environ['QEMU_CPU']
++
+ # Load previous test results so we can skip tests that did not change.
+ previous_results_file = lit_config.params.get('previous', None)
+ if previous_results_file:
+
+
+# Do a complete build.  test-suite DOES NOT handle toolchain
+# changes gracefully.  AT ALL.  SERIOUSLY, REBUILD.
+cd build
+rm * -rf
+cmake -GNinja ../test-suite/
+
+# Build, but allow failures.  This gets around an issue with TCK
+ninja -j3 -k100
+
+~/llvm-dev/build/bin/llvm-lit -j1 ./
